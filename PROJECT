@@ -8,4 +8,14 @@ layout:
 - go.kubebuilder.io/v4
 projectName: virtsquad-operator
 repo: github.com/mshort55/virtsquad-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: mshort55.io
+  group: apps
+  kind: VirtSquad
+  path: github.com/mshort55/virtsquad-operator/api/v1
+  version: v1
 version: "3"
