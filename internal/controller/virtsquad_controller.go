@@ -121,8 +121,15 @@ func (r *VirtSquadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		status.ReadyPods = readyCount
 	}
 
-	virtSquad.Status = *status
-	err = r.Status().Update(ctx, virtSquad)
+	// Refetch the latest version to avoid resource version conflicts
+	latest := &appsv1.VirtSquad{}
+	if err := r.Get(ctx, req.NamespacedName, latest); err != nil {
+		log.Error(err, "Failed to refetch VirtSquad for status update")
+		return ctrl.Result{}, err
+	}
+
+	latest.Status = *status
+	err = r.Status().Update(ctx, latest)
 	if err != nil {
 		log.Error(err, "Failed to update VirtSquad status")
 		return ctrl.Result{}, err
