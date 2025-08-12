@@ -93,26 +93,26 @@ func (r *VirtSquadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	// Reconcile each team member
 	status := &appsv1.VirtSquadStatus{}
-	
+
 	if err := r.reconcileTeamMember(ctx, virtSquad, "oksana", virtSquad.Spec.Oksana, &status.OksanaPods); err != nil {
 		return ctrl.Result{}, err
 	}
-	
+
 	if err := r.reconcileTeamMember(ctx, virtSquad, "kurtis", virtSquad.Spec.Kurtis, &status.KurtisPods); err != nil {
 		return ctrl.Result{}, err
 	}
-	
+
 	if err := r.reconcileTeamMember(ctx, virtSquad, "matt", virtSquad.Spec.Matt, &status.MattPods); err != nil {
 		return ctrl.Result{}, err
 	}
-	
+
 	if err := r.reconcileTeamMember(ctx, virtSquad, "kike", virtSquad.Spec.Kike, &status.KikePods); err != nil {
 		return ctrl.Result{}, err
 	}
 
 	// Update status
 	status.TotalPods = int32(len(status.OksanaPods) + len(status.KurtisPods) + len(status.MattPods) + len(status.KikePods))
-	
+
 	// Count ready pods
 	readyCount, err := r.countReadyPods(ctx, virtSquad)
 	if err != nil {
@@ -134,7 +134,7 @@ func (r *VirtSquadReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 // reconcileTeamMember handles pod reconciliation for a single team member
 func (r *VirtSquadReconciler) reconcileTeamMember(ctx context.Context, virtSquad *appsv1.VirtSquad, memberName string, memberSpec *appsv1.TeamMemberSpec, statusPods *[]string) error {
 	log := logf.FromContext(ctx)
-	
+
 	if memberSpec == nil || memberSpec.Name == nil {
 		// Team member not specified, delete any existing pods
 		return r.deleteTeamMemberPods(ctx, virtSquad, memberName, statusPods)
@@ -156,14 +156,14 @@ func (r *VirtSquadReconciler) reconcileTeamMember(ctx context.Context, virtSquad
 			"virtsquad.mshort55.io/squad":  virtSquad.Name,
 		},
 	}
-	
+
 	if err := r.List(ctx, existingPods, listOpts...); err != nil {
 		log.Error(err, "Failed to list existing pods", "member", memberName)
 		return err
 	}
 
 	currentReplicas := int32(len(existingPods.Items))
-	
+
 	// Scale up if needed
 	if currentReplicas < desiredReplicas {
 		for i := currentReplicas; i < desiredReplicas; i++ {
@@ -172,7 +172,7 @@ func (r *VirtSquadReconciler) reconcileTeamMember(ctx context.Context, virtSquad
 			}
 		}
 	}
-	
+
 	// Scale down if needed
 	if currentReplicas > desiredReplicas {
 		podsToDelete := currentReplicas - desiredReplicas
@@ -196,9 +196,9 @@ func (r *VirtSquadReconciler) reconcileTeamMember(ctx context.Context, virtSquad
 // createPodForMember creates a new pod for a team member
 func (r *VirtSquadReconciler) createPodForMember(ctx context.Context, virtSquad *appsv1.VirtSquad, memberName, podBaseName string, replica int32) error {
 	log := logf.FromContext(ctx)
-	
+
 	podName := fmt.Sprintf("%s-%d", podBaseName, replica)
-	
+
 	pod := &corev1.Pod{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      podName,
@@ -237,7 +237,7 @@ func (r *VirtSquadReconciler) createPodForMember(ctx context.Context, virtSquad 
 // deleteTeamMemberPods deletes all pods for a team member
 func (r *VirtSquadReconciler) deleteTeamMemberPods(ctx context.Context, virtSquad *appsv1.VirtSquad, memberName string, statusPods *[]string) error {
 	log := logf.FromContext(ctx)
-	
+
 	// Get existing pods for this team member
 	existingPods := &corev1.PodList{}
 	listOpts := []client.ListOption{
@@ -248,7 +248,7 @@ func (r *VirtSquadReconciler) deleteTeamMemberPods(ctx context.Context, virtSqua
 			"virtsquad.mshort55.io/squad":  virtSquad.Name,
 		},
 	}
-	
+
 	if err := r.List(ctx, existingPods, listOpts...); err != nil {
 		log.Error(err, "Failed to list existing pods for deletion", "member", memberName)
 		return err
@@ -264,7 +264,7 @@ func (r *VirtSquadReconciler) deleteTeamMemberPods(ctx context.Context, virtSqua
 
 	// Clear the status
 	*statusPods = []string{}
-	
+
 	return nil
 }
 
@@ -278,7 +278,7 @@ func (r *VirtSquadReconciler) countReadyPods(ctx context.Context, virtSquad *app
 			"virtsquad.mshort55.io/squad": virtSquad.Name,
 		},
 	}
-	
+
 	if err := r.List(ctx, pods, listOpts...); err != nil {
 		return 0, err
 	}
@@ -306,7 +306,7 @@ func isPodReady(pod *corev1.Pod) bool {
 // finalizeVirtSquad handles cleanup when a VirtSquad is deleted
 func (r *VirtSquadReconciler) finalizeVirtSquad(ctx context.Context, virtSquad *appsv1.VirtSquad) error {
 	log := logf.FromContext(ctx)
-	
+
 	// Delete all pods managed by this VirtSquad
 	pods := &corev1.PodList{}
 	listOpts := []client.ListOption{
@@ -316,7 +316,7 @@ func (r *VirtSquadReconciler) finalizeVirtSquad(ctx context.Context, virtSquad *
 			"virtsquad.mshort55.io/squad": virtSquad.Name,
 		},
 	}
-	
+
 	if err := r.List(ctx, pods, listOpts...); err != nil {
 		log.Error(err, "Failed to list pods for cleanup")
 		return err
