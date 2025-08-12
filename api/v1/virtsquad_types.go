@@ -23,6 +23,18 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// TeamMemberSpec defines the configuration for a team member
+type TeamMemberSpec struct {
+	// Name specifies the name for the team member's pod
+	// +optional
+	Name *string `json:"name,omitempty"`
+
+	// Replicas specifies the number of pods for this team member
+	// +optional
+	// +kubebuilder:default=1
+	Replicas *int32 `json:"replicas,omitempty"`
+}
+
 // VirtSquadSpec defines the desired state of VirtSquad
 type VirtSquadSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
@@ -30,15 +42,51 @@ type VirtSquadSpec struct {
 	// The following markers will use OpenAPI v3 schema to validate the value
 	// More info: https://book.kubebuilder.io/reference/markers/crd-validation.html
 
-	// foo is an example field of VirtSquad. Edit virtsquad_types.go to remove/update
+	// Oksana defines configuration for Oksana's pods
 	// +optional
-	Foo *string `json:"foo,omitempty"`
+	Oksana *TeamMemberSpec `json:"oksana,omitempty"`
+
+	// Kurtis defines configuration for Kurtis's pods
+	// +optional
+	Kurtis *TeamMemberSpec `json:"kurtis,omitempty"`
+
+	// Matt defines configuration for Matt's pods
+	// +optional
+	Matt *TeamMemberSpec `json:"matt,omitempty"`
+
+	// Kike defines configuration for Kike's pods
+	// +optional
+	Kike *TeamMemberSpec `json:"kike,omitempty"`
 }
 
 // VirtSquadStatus defines the observed state of VirtSquad.
 type VirtSquadStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// OksanaPods tracks the names of created pods for Oksana
+	// +optional
+	OksanaPods []string `json:"oksanaPods,omitempty"`
+
+	// KurtisPods tracks the names of created pods for Kurtis
+	// +optional
+	KurtisPods []string `json:"kurtisPods,omitempty"`
+
+	// MattPods tracks the names of created pods for Matt
+	// +optional
+	MattPods []string `json:"mattPods,omitempty"`
+
+	// KikePods tracks the names of created pods for Kike
+	// +optional
+	KikePods []string `json:"kikePods,omitempty"`
+
+	// ReadyPods tracks the total number of ready pods
+	// +optional
+	ReadyPods int32 `json:"readyPods,omitempty"`
+
+	// TotalPods tracks the total number of pods
+	// +optional
+	TotalPods int32 `json:"totalPods,omitempty"`
 }
 
 // +kubebuilder:object:root=true
