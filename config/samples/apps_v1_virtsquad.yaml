@@ -6,4 +6,12 @@ metadata:
     app.kubernetes.io/managed-by: kustomize
   name: virtsquad-sample
 spec:
-  # TODO(user): Add fields here
+  oksana:
+    name: "oksana-pod"
+    replicas: 2
+  kurtis:
+    name: "kurtis-pod"
+    replicas: 1
+  matt:
+    name: "matt-pod"
+    replicas: 1
